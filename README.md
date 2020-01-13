@@ -18,7 +18,7 @@ cele productive. Starile utile sunt intersectia acestor doua multimi.
 Limbajul este vid daca starile finale nu sunt accesibile. La citirea fiecarei
 stari finale se verifica daca aceasta este si accesibila.
 
-##-f
+## -f
 Se testeaza cu un *DFS* care verifica daca exista cicluri in AFD. Din moment ce
 daca un nod dintr-un ciclu este util, toate nodurile sunt utile, in momentul in
 care se depisteaza un ciclu se verifica un singur nod.
