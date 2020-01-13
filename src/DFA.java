@@ -5,9 +5,11 @@ import java.util.Queue;
 import java.util.LinkedList;
 
 class DFA {
+    // Retin raspunsurile pentru argumentele `-e` si `-v`
     private boolean acceptsE;
-    private String initialState;
+    private boolean isVoid;
 
+    private String initialState;
     private int numNodes = 0;
 
     // Retin graful care reprezinta AFD-ul atat in forma initiala cat si transpus
@@ -22,7 +24,6 @@ class DFA {
     private HashSet<Integer> accessible;
     private HashSet<Integer> productive;
     private HashSet<Integer> useful;
-    private HashSet<Integer> finalStates;
 
     private Queue<Integer> productiveQ;
 
@@ -31,6 +32,7 @@ class DFA {
     private boolean[] open;
 
     DFA() {
+        isVoid          = true;
         initialState    = null;
         acceptsE        = false;
 
@@ -43,7 +45,6 @@ class DFA {
         accessible      = new HashSet<>();
         productive      = new HashSet<>();
         useful          = new HashSet<>();
-        finalStates     = new HashSet<>();
 
         productiveQ     = new LinkedList<>();
     }
@@ -116,9 +117,9 @@ class DFA {
 
     /**
      * Verifica daca starea finala este si stare initiala.
-     * De asemenea, adauga starea finala in colectiile ce o vor folosi in viitor.
+     * De asemenea, verifica daca limbajul este vid (starea finala este accesibila).
      *
-     * @param state = starea finala
+     * @param state starea finala
      */
     void checkFinalState(String state) {
         int index = stateToIndex.get(state);
@@ -129,10 +130,10 @@ class DFA {
 
         productiveQ.add(index);
         productive.add(index);
-        finalStates.add(index);
 
         if (accessible.contains(index)) {
             useful.add(index);
+            isVoid = false;
         }
     }
 
@@ -158,22 +159,6 @@ class DFA {
                 }
             }
         }
-    }
-
-    /**
-     * Determina daca limbajul este vid verificand daca exista o stare finala care este si
-     * accesibila.
-     *
-     * @return `true` daca limbajul este vid, `false` in caz contrar
-     */
-    boolean isLanguageVoid() {
-        for (int state : finalStates) {
-            if (accessible.contains(state)) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     /**
@@ -228,5 +213,9 @@ class DFA {
 
     String getState(final int index) {
         return indexToState.get(index);
+    }
+
+    boolean isLanguageVoid() {
+        return isVoid;
     }
 }
