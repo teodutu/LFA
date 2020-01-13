@@ -14,25 +14,13 @@ import java.util.LinkedList;
 /*%column*/
 
 %{
-    public boolean acceptsE = false;
-    public String initialState = null;
+    private String src;
 
-    public int numNodes = 0;
-    private int src;
-    private int dst;
+    private DFA dfa;
 
-    public ArrayList<ArrayList<Integer>> graph;
-    public ArrayList<ArrayList<Integer>> graphT;
-
-    public HashMap<String, Integer> stateToIndex;
-    public ArrayList<String> indexToState;
-
-    public HashSet<Integer> accessible;
-    public HashSet<Integer> productive;
-    public HashSet<Integer> useful;
-    public HashSet<Integer> finalStates;
-
-    private Queue<Integer> productiveQ;
+    void setDFA(DFA newDFA) {
+        dfa = newDFA;
+    }
 %}
 
 
@@ -49,9 +37,6 @@ Name = ([:uppercase:] | [:lowercase:] | [:digit:] | "_")+
 %%
 {WS}	{}
 <YYINITIAL>"(" {
-    stateToIndex = new HashMap<>();
-    indexToState = new ArrayList<>();
-
     yybegin(STARTK);
 }
 
@@ -60,8 +45,7 @@ Name = ([:uppercase:] | [:lowercase:] | [:digit:] | "_")+
 }
 
 <ELEMK> {Name} {
-    indexToState.add(yytext());
-    stateToIndex.put(yytext(), numNodes++);
+    dfa.addState(yytext());
 
 	yybegin(STOPK);
 }
@@ -80,13 +64,7 @@ Name = ([:uppercase:] | [:lowercase:] | [:digit:] | "_")+
 }
 
 <STARTS> "{" {
-    graph   = new ArrayList<>();
-    graphT  = new ArrayList<>();
-
-    for (int i = 0; i != numNodes; ++i) {
-        graph.add(new ArrayList<>());
-        graphT.add(new ArrayList<>());
-    }
+    dfa.setUpGraphs();
 
     yybegin(INITS);
 }
@@ -125,7 +103,7 @@ Name = ([:uppercase:] | [:lowercase:] | [:digit:] | "_")+
 }
 
 <SRCT> {Name} {
-    src = stateToIndex.get(yytext());
+    src = yytext();
 
     yybegin(SEPSST);
 }
@@ -144,10 +122,7 @@ Name = ([:uppercase:] | [:lowercase:] | [:digit:] | "_")+
 }
 
 <DESTT> {Name} {
-    dst = stateToIndex.get(yytext());
-
-    graph.get(src).add(dst);
-    graphT.get(dst).add(src);
+    dfa.addEdge(src, yytext());
 
     yybegin(ENDT);
 }
@@ -170,36 +145,13 @@ Name = ([:uppercase:] | [:lowercase:] | [:digit:] | "_")+
 }
 
 <SS> {Name} {
-    initialState        = yytext();
-    int init            = stateToIndex.get(initialState);
-    Queue<Integer> q    = new LinkedList<>();
-    accessible          = new HashSet<>();
-
-    int crtState;
-    q.add(init);
-    accessible.add(init);
-
-    while (!q.isEmpty()) {
-        crtState = q.remove();
-
-        for (int nextState : graph.get(crtState)) {
-            if (!accessible.contains(nextState)) {
-                accessible.add(nextState);
-                q.add(nextState);
-            }
-        }
-    }
+    dfa.setInitialState(yytext());
+    dfa.computeAccessible();
 
     yybegin(SEPSF);
 }
 
 <SEPSF> "," {
-    productiveQ = new LinkedList<>();
-    productive  = new HashSet<>();
-    finalStates = new HashSet<>();
-    useful      = new HashSet<>();
-
-
     yybegin(STARTF);
 }
 
@@ -212,20 +164,7 @@ Name = ([:uppercase:] | [:lowercase:] | [:digit:] | "_")+
 }
 
 <INITF,ELEMF> {Name} {
-    String crtFinal = yytext();
-    int crtFinalIndex = stateToIndex.get(crtFinal);
-
-    if (initialState.equals(crtFinal)) {
-        acceptsE = true;
-    }
-
-    productiveQ.add(crtFinalIndex);
-    productive.add(crtFinalIndex);
-    finalStates.add(crtFinalIndex);
-
-    if (accessible.contains(crtFinalIndex)) {
-        useful.add(crtFinalIndex);
-    }
+    dfa.checkFinalState(yytext());
 
     yybegin(STOPF);
 }
@@ -239,24 +178,7 @@ Name = ([:uppercase:] | [:lowercase:] | [:digit:] | "_")+
     }
 }
 <ENDDFA> ")" {
-    int crtState;
-
-    while (!productiveQ.isEmpty()) {
-        crtState = productiveQ.remove();
-
-        for (int nextState : graphT.get(crtState)) {
-            if (!productive.contains(nextState)) {
-                productive.add(nextState);
-
-                if (accessible.contains(nextState)) {
-                    useful.add(nextState);
-                }
-
-                productiveQ.add(nextState);
-            }
-        }
-    }
-
+    dfa.computeProductiveUseful();
     return 0;
 }
 
