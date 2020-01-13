@@ -1,0 +1,10 @@
+Aceste teste reprezinta materialul pe care se testeaza functionarea corecta a
+temei.
+
+Fisierele sunt:
+-<testset>/*.in: reprezinta automatele date la intrare. *-std.in sunt fisiere pe care se ruleaza toate testele. *-[auvfe].in sunt fișierele pe care se ruleaza doar testele al caror parametru este intre '-' si '.in'
+-clean.sh: curata testele pentru a putea genera altele. Implicit nu curata tests. Poate primi parametru pentru a curata un anumit set de teste
+-testsetgen.py: genereaza o suita de teste cu numele dat ca parametru
+-gen.py: adauga un test la o suita de teste. Comanda are nevoie de numar de stari utile, productive, accesibile, total, tipul de limbaj, suita de teste, numele testului, parametrii pe care se testeaza.
+-<testset>/gen.log: reprezinta un log al generarii testelor. In caz ca intalniti probleme, trimiteti acest fisier si testele pentru a verifica problema
+-sort.sh: script care sorteaza toate iesirile pentru a fi usor de comparat

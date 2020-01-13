@@ -1,0 +1,10 @@
+F
+FS
+G9
+O
+UL
+Ur
+XR
+_
+i
+nK
