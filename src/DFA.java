@@ -28,8 +28,8 @@ class DFA {
     private Queue<Integer> productiveQ;
 
     // Multimi de stari folosite pentru determinarea ciclurilor
-    private boolean[] visited;
-    private boolean[] open;
+    private HashSet<Integer> visited;
+    private HashSet<Integer> open;
 
     DFA() {
         isVoid          = true;
@@ -168,8 +168,8 @@ class DFA {
      * @return `true` daca limbajul este finit, `false` in caz contrar
      */
     boolean isLanguageFinite() {
-        visited = new boolean[numNodes];
-        open    = new boolean[numNodes];
+        visited = new HashSet<>();
+        open    = new HashSet<>();
 
         return isFinite(stateToIndex.get(initialState));
     }
@@ -183,17 +183,18 @@ class DFA {
      *                  stari utile, `true` in caz contrar
      */
     private boolean isFinite(final int crtNode) {
-        open[crtNode] = true;
+        open.add(crtNode);
 
         for (int nextNode : graph.get(crtNode)) {
-            if ((open[nextNode] && useful.contains(crtNode))
-                    || (!visited[nextNode] && !open[nextNode] && !isFinite(nextNode))) {
+            if ((open.contains(nextNode) && useful.contains(crtNode))
+                || (!visited.contains(nextNode) && !open.contains(nextNode)
+                    && !isFinite(nextNode))) {
                 return false;
             }
         }
 
-        open[crtNode]       = false;
-        visited[crtNode]    = true;
+        open.remove(crtNode);
+        visited.add(crtNode);
 
         return true;
     }

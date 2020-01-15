@@ -3,7 +3,8 @@ Tema la LFA - 2020
 
 Fiecare cerinta este rezolvata din prima parsare a inputului. In anumite stari
 ale *AFD*-ului care parseaza fisierul de input, se stocheaza/calculeaza
-structurile necesare rezolvarii respectivelor cerinte.
+structurile necesare rezolvarii respectivelor cerinte: graful starilor si
+tranzitiilor, graful transpus si multimile de stari accesibile si utile.
 
 ## -e
 Pur si simplu se verifica daca vreuna dintre starile finale este cea initiala.
